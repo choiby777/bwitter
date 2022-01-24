@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from "react";
-
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
+import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-
-import { signOut } from "firebase/auth";
+import Grid from "@mui/material/Grid";
+import { ThemeProvider } from "@mui/styles";
 import { authService } from "../fbase";
-import { getFirestore } from "firebase/firestore";
-import { collection, addDoc, doc, onSnapshot } from "firebase/firestore";
+import { signOut } from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
+
+import TwittCard from "components/TwittCard";
 
 function Home() {
   const [loginUserEmail, setLoginUserEmail] = useState("");
@@ -25,8 +29,6 @@ function Home() {
       }
     });
 
-    console.log("Current 1111111");
-
     const unsub = onSnapshot(
       doc(db, "commis", "VfP11FhrEW1HnzYes5GJ"),
       (doc) => {
@@ -36,14 +38,11 @@ function Home() {
   }, []);
 
   const onLogoutClick = (event) => {
-    console.log("onLogoutClick");
-    console.log("authService.uid :  ", authService.currentUser.uid);
     signOut(authService);
   };
 
   const onAddClick = async (event) => {
     try {
-      console.log("authService.uid :  ", authService.currentUser.uid);
       const docRef = await addDoc(collection(db, "commis"), {
         uid: authService.currentUser.uid,
         first: "Ada",
@@ -57,7 +56,7 @@ function Home() {
   };
 
   return (
-    <div>
+    <Container component="main" maxWidth="xs">
       <h1>Home</h1>
       <h2>{loginUserEmail}</h2>
       <Button type="submit" variant="contained" onClick={onLogoutClick}>
@@ -66,7 +65,14 @@ function Home() {
       <Button variant="contained" onClick={onAddClick}>
         Add
       </Button>
-    </div>
+
+      <TwittCard title="111111111" content="Hello!!" />
+      <br />
+      <TwittCard title="111111111" content="Hello!!" />
+      <br />
+      <TwittCard title="111111111" content="Hello!!" />
+      <br />
+    </Container>
   );
 }
 

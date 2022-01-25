@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import { ThemeProvider } from "@mui/styles";
+
 import { authService } from "../fbase";
 import { signOut } from "firebase/auth";
 import {
@@ -18,6 +21,7 @@ import TwittCard from "components/TwittCard";
 
 function Home() {
   const [loginUserEmail, setLoginUserEmail] = useState("");
+  const [newContent, setNewContent] = useState("");
   const db = getFirestore();
 
   useEffect(() => {
@@ -29,26 +33,30 @@ function Home() {
       }
     });
 
-    const unsub = onSnapshot(
-      doc(db, "commis", "VfP11FhrEW1HnzYes5GJ"),
-      (doc) => {
-        console.log("Current data: ", doc.data());
-      }
-    );
+    // const unsub = onSnapshot(doc(db, "twitts"), (doc) => {
+    //   console.log("Current data: ", doc.data());
+    // });
   }, []);
 
   const onLogoutClick = (event) => {
     signOut(authService);
   };
 
+  const handleChange = (event) => {
+    setNewContent(event.target.value);
+  };
+
   const onAddClick = async (event) => {
     try {
-      const docRef = await addDoc(collection(db, "commis"), {
-        uid: authService.currentUser.uid,
-        first: "Ada",
-        last: "Lovelace",
-        born: 1815,
-      });
+      const docRef = await addDoc(
+        collection(db, "twitts", authService.currentUser.uid, "111111"),
+        {
+          uid: authService.currentUser.uid,
+          content: newContent,
+          imageUrl:
+            "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
+        }
+      );
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -62,15 +70,30 @@ function Home() {
       <Button type="submit" variant="contained" onClick={onLogoutClick}>
         Logout
       </Button>
+
+      <TextField
+        id="outlined-multiline-static"
+        label="Multiline"
+        multiline
+        rows={4}
+        defaultValue="Default Value"
+        value={newContent}
+        onChange={handleChange}
+      />
+
       <Button variant="contained" onClick={onAddClick}>
         Add
       </Button>
 
-      <TwittCard title="111111111" content="Hello!!" />
+      <TwittCard userName="111111111" content="Hello!!" />
       <br />
-      <TwittCard title="111111111" content="Hello!!" />
+      <TwittCard userName="111111111" content="Hello!!" />
       <br />
-      <TwittCard title="111111111" content="Hello!!" />
+      <TwittCard userName="111111111" content="Hello!!" />
+      <br />
+      <TwittCard userName="111111111" content="Hello!!" />
+      <br />
+      <TwittCard userName="111111111" content="Hello!!" />
       <br />
     </Container>
   );

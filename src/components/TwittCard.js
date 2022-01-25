@@ -5,7 +5,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { Button, CardActionArea, CardActions } from "@mui/material";
 
-export default function TwittCard({ title, content }) {
+export default function TwittCard({ userName, content }) {
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardActionArea>
@@ -17,7 +17,7 @@ export default function TwittCard({ title, content }) {
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-            {title}
+            {userName}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {content}

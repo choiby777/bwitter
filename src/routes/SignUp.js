@@ -9,10 +9,21 @@ import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import { Link, useNavigate } from "react-router-dom";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
 
 function SignUp() {
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
+  const db = getFirestore();
+
+  const addUserToDb = async (userData) => {
+    try {
+      const usersDoc = doc(db, "users", authService.currentUser.uid);
+      const docRef = await setDoc(usersDoc, userData);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -26,6 +37,17 @@ function SignUp() {
         email,
         password
       );
+
+      const user = data.user;
+
+      const userData = {
+        email: user.email,
+        name: null,
+        displayName: user.displayName,
+        photo: null,
+      };
+      addUserToDb(userData);
+
       navigate("/");
     } catch (error) {
       setErrorMsg(error.message);

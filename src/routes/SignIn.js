@@ -12,14 +12,26 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
 } from "firebase/auth";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
+
 import { Link } from "react-router-dom";
 
 function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const db = getFirestore();
 
   useEffect(() => {}, [errorMsg]);
+
+  const addUserToDb = async (userData) => {
+    try {
+      const usersDoc = doc(db, "users", authService.currentUser.uid);
+      const docRef = await setDoc(usersDoc, userData);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
 
   const onGoogleLogin = async (event) => {
     const provider = new GoogleAuthProvider();
@@ -30,8 +42,16 @@ function SignIn() {
         const token = credential.accessToken;
         // The signed-in user info.
         const user = result.user;
-        // ...
-        console.log(user);
+
+        //console.log(user);
+        const userData = {
+          email: user.email,
+          name: null,
+          displayName: user.displayName,
+          photo: null,
+        };
+
+        addUserToDb(userData);
       })
       .catch((error) => {
         // Handle Errors here.
@@ -51,8 +71,8 @@ function SignIn() {
     signInWithEmailAndPassword(authService, email, password)
       .then((userCredential) => {
         // Signed in
-        const user = userCredential.user;
-        // ...
+        //const user = userCredential.user;
+        // console.log(user);
       })
       .catch((error) => {
         // const errorCode = error.code;

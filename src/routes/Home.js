@@ -9,13 +9,7 @@ import { ThemeProvider } from "@mui/styles";
 
 import { authService } from "../fbase";
 import { signOut } from "firebase/auth";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  doc,
-  onSnapshot,
-} from "firebase/firestore";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
 
 import TwittCard from "components/TwittCard";
 
@@ -48,16 +42,18 @@ function Home() {
 
   const onAddClick = async (event) => {
     try {
-      const docRef = await addDoc(
-        collection(db, "twitts", authService.currentUser.uid, "111111"),
-        {
-          uid: authService.currentUser.uid,
-          content: newContent,
-          imageUrl:
-            "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
-        }
-      );
-      console.log("Document written with ID: ", docRef.id);
+      const userData = {
+        email: authService.currentUser.email,
+        name: null,
+        nickname: null,
+        photo: null,
+      };
+
+      // addUserToDb(data);
+      const usersDoc = doc(db, "users", authService.currentUser.uid);
+      const docRef = await setDoc(usersDoc, userData);
+
+      // console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -71,7 +67,7 @@ function Home() {
         Logout
       </Button>
 
-      <TextField
+      {/* <TextField
         id="outlined-multiline-static"
         label="Multiline"
         multiline
@@ -79,13 +75,13 @@ function Home() {
         defaultValue="Default Value"
         value={newContent}
         onChange={handleChange}
-      />
+      /> */}
 
       <Button variant="contained" onClick={onAddClick}>
         Add
       </Button>
 
-      <TwittCard userName="111111111" content="Hello!!" />
+      {/* <TwittCard userName="111111111" content="Hello!!" />
       <br />
       <TwittCard userName="111111111" content="Hello!!" />
       <br />
@@ -94,7 +90,7 @@ function Home() {
       <TwittCard userName="111111111" content="Hello!!" />
       <br />
       <TwittCard userName="111111111" content="Hello!!" />
-      <br />
+      <br /> */}
     </Container>
   );
 }

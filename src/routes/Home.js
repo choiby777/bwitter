@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
-
+import SideBar from "components/SideBar";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
-import { ThemeProvider } from "@mui/styles";
+import { styled, ThemeProvider } from "@mui/styles";
 
 import { authService } from "../fbase";
 import { signOut } from "firebase/auth";
-import { getFirestore, setDoc, doc } from "firebase/firestore";
+import { getFirestore, setDoc, doc, Timestamp } from "firebase/firestore";
 
 import TwittCard from "components/TwittCard";
 
+const drawerWidth = 240;
 function Home() {
   const [loginUserEmail, setLoginUserEmail] = useState("");
   const [newContent, setNewContent] = useState("");
@@ -32,6 +33,23 @@ function Home() {
     // });
   }, []);
 
+  const addTwitt = async (title, message) => {
+    try {
+      const twittData = {
+        user: authService.currentUser.uid,
+        title: title,
+        message: message,
+        photo: null,
+        time: Timestamp.fromDate(new Date()),
+      };
+
+      const twittsDoc = doc(db, "twitts", "111111");
+      const docRef = await setDoc(twittsDoc, twittData);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
+
   const onLogoutClick = (event) => {
     signOut(authService);
   };
@@ -41,6 +59,8 @@ function Home() {
   };
 
   const onAddClick = async (event) => {
+    addTwitt("Title1111111", "Msg2222222");
+
     try {
       const userData = {
         email: authService.currentUser.email,
@@ -60,14 +80,19 @@ function Home() {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <h1>Home</h1>
-      <h2>{loginUserEmail}</h2>
-      <Button type="submit" variant="contained" onClick={onLogoutClick}>
-        Logout
-      </Button>
+    <div>
+      <div style={{ float: "top", background: "#1572A1" }}>Top bar</div>
+      <div style={{ float: "left", background: "#F5EEDC" }}>
+        <SideBar />
+      </div>
+      <Container component="main" maxWidth="xs">
+        <h1>Home</h1>
+        <h2>{loginUserEmail}</h2>
+        <Button type="submit" variant="contained" onClick={onLogoutClick}>
+          Logout
+        </Button>
 
-      {/* <TextField
+        {/* <TextField
         id="outlined-multiline-static"
         label="Multiline"
         multiline
@@ -77,21 +102,22 @@ function Home() {
         onChange={handleChange}
       /> */}
 
-      <Button variant="contained" onClick={onAddClick}>
-        Add
-      </Button>
+        <Button variant="contained" onClick={onAddClick}>
+          Add
+        </Button>
 
-      {/* <TwittCard userName="111111111" content="Hello!!" />
-      <br />
-      <TwittCard userName="111111111" content="Hello!!" />
-      <br />
-      <TwittCard userName="111111111" content="Hello!!" />
-      <br />
-      <TwittCard userName="111111111" content="Hello!!" />
-      <br />
-      <TwittCard userName="111111111" content="Hello!!" />
-      <br /> */}
-    </Container>
+        <TwittCard userName="111111111" content="Hello!!" />
+        <br />
+        <TwittCard userName="111111111" content="Hello!!" />
+        <br />
+        <TwittCard userName="111111111" content="Hello!!" />
+        <br />
+        <TwittCard userName="111111111" content="Hello!!" />
+        <br />
+        <TwittCard userName="111111111" content="Hello!!" />
+        <br />
+      </Container>
+    </div>
   );
 }
 

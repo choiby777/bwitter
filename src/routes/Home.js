@@ -9,14 +9,25 @@ import { styled, ThemeProvider } from "@mui/styles";
 
 import { authService } from "../fbase";
 import { signOut } from "firebase/auth";
-import { getFirestore, setDoc, doc, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  getFirestore,
+  addDoc,
+  setDoc,
+  getDoc,
+  doc,
+  Timestamp,
+  onSnapshot,
+} from "firebase/firestore";
 
 import TwittCard from "components/TwittCard";
 
 const drawerWidth = 240;
 function Home() {
   const [loginUserEmail, setLoginUserEmail] = useState("");
+  const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
+  const [twitts, setTwitts] = useState([]);
   const db = getFirestore();
 
   useEffect(() => {
@@ -27,11 +38,20 @@ function Home() {
         setLoginUserEmail("");
       }
     });
-
-    // const unsub = onSnapshot(doc(db, "twitts"), (doc) => {
-    //   console.log("Current data: ", doc.data());
-    // });
+    setTwittsFromDb();
   }, []);
+
+  const setTwittsFromDb = async () => {
+    const twittsRef = collection(db, "twitts");
+    const snapshot = await onSnapshot(twittsRef, (querySnapshot) => {
+      const newTwittts = [];
+      querySnapshot.forEach((doc) => {
+        newTwittts.push({ id: doc.id, ...doc.data() });
+      });
+
+      setTwitts(newTwittts);
+    });
+  };
 
   const addTwitt = async (title, message) => {
     try {
@@ -43,8 +63,8 @@ function Home() {
         time: Timestamp.fromDate(new Date()),
       };
 
-      const twittsDoc = doc(db, "twitts", "111111");
-      const docRef = await setDoc(twittsDoc, twittData);
+      const twittsCollection = collection(db, "twitts");
+      const docRef = await addDoc(twittsCollection, twittData);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -58,8 +78,12 @@ function Home() {
     setNewContent(event.target.value);
   };
 
+  const onChangeTitle = (event) => {
+    setNewTitle(event.target.value);
+  };
+
   const onAddClick = async (event) => {
-    addTwitt("Title1111111", "Msg2222222");
+    addTwitt(newTitle, newContent);
 
     try {
       const userData = {
@@ -92,30 +116,38 @@ function Home() {
           Logout
         </Button>
 
-        {/* <TextField
-        id="outlined-multiline-static"
-        label="Multiline"
-        multiline
-        rows={4}
-        defaultValue="Default Value"
-        value={newContent}
-        onChange={handleChange}
-      /> */}
+        <TextField
+          autoComplete="given-name"
+          name="title"
+          required
+          fullWidth
+          id="titleText"
+          label="Title"
+          value={newTitle}
+          onChange={onChangeTitle}
+          autoFocus
+        />
+        <TextField
+          id="outlined-multiline-static"
+          label="Multiline"
+          multiline
+          rows={4}
+          defaultValue="Default Value"
+          value={newContent}
+          onChange={handleChange}
+        />
 
         <Button variant="contained" onClick={onAddClick}>
           Add
         </Button>
 
-        <TwittCard userName="111111111" content="Hello!!" />
-        <br />
-        <TwittCard userName="111111111" content="Hello!!" />
-        <br />
-        <TwittCard userName="111111111" content="Hello!!" />
-        <br />
-        <TwittCard userName="111111111" content="Hello!!" />
-        <br />
-        <TwittCard userName="111111111" content="Hello!!" />
-        <br />
+        {twitts.map((twwit) => (
+          <div key={twwit.id}>
+            {console.log(twwit)}
+            <TwittCard userName={twwit.title} content={twwit.message} />
+            <br />
+          </div>
+        ))}
       </Container>
     </div>
   );
